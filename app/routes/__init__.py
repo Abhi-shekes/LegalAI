@@ -1,0 +1,2 @@
+from .auth_routes import router as auth_router
+from .generate_routes import router as generate_router

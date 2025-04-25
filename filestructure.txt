@@ -1,0 +1,43 @@
+|-- .env
+|-- .gitignore
+|-- Microsoft Phi 2
+    |-- README.md
+    |-- adapter_config.json
+    |-- adapter_model.safetensors
+    |-- added_tokens.json
+    |-- all_results.json
+    |-- merges.txt
+    |-- special_tokens_map.json
+    |-- tokenizer.json
+    |-- tokenizer_config.json
+    |-- train_results.json
+    |-- trainer_state.json
+    |-- vocab.json
+|-- app
+    |-- __pycache__
+        |-- auth.cpython-38.pyc
+        |-- config.cpython-38.pyc
+        |-- database.cpython-38.pyc
+        |-- main.cpython-38.pyc
+        |-- model_loader.cpython-38.pyc
+        |-- models.cpython-38.pyc
+        |-- schemas.cpython-38.pyc
+        |-- utils.cpython-38.pyc
+    |-- auth.py
+    |-- config.py
+    |-- database.py
+    |-- main.py
+    |-- model_loader.py
+    |-- models.py
+    |-- routes
+        |-- __init__.py
+        |-- __pycache__
+            |-- __init__.cpython-38.pyc
+            |-- auth_routes.cpython-38.pyc
+            |-- generate_routes.cpython-38.pyc
+        |-- auth_routes.py
+        |-- generate_routes.py
+    |-- schemas.py
+    |-- utils.py
+|-- run.py
+|-- table_schema.sql
