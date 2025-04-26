@@ -4,8 +4,11 @@ import json
 from sqlalchemy import select
 from app.auth import get_current_user
 from app.database import database
-from app.models import CaseInput, UserOut
+from app.models import CaseInput, SolveStatusUpdate, UserOut
 from app.schemas import generated_arguments
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import  func
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -47,14 +50,14 @@ async def generate_arguments(
         gen_text = tokenizer.decode(outputs[0][inputs.input_ids.shape[-1]:], skip_special_tokens=True)
 
         try:
-            gen_json = json.loads(gen_text.strip())  # Attempt parsing
+            gen_json = json.loads(gen_text.strip()) 
         except json.JSONDecodeError:
-            gen_json = {"raw_text": gen_text.strip()}  # fallback to plain text
+            gen_json = {"raw_text": gen_text.strip()}  
 
         query = generated_arguments.insert().values(
             user_id=current_user.id,
             case_id=case.case_id,
-            generated_arguments=json.dumps(gen_json)  # store as JSON string
+            generated_arguments=json.dumps(gen_json) 
         )
         await database.execute(query)
 
@@ -80,3 +83,41 @@ async def get_generated_arguments(case_id: str, current_user: UserOut = Depends(
         parsed = {"raw_text": result["generated_arguments"]}
 
     return {"case_id": case_id, "generated_arguments": parsed}
+
+
+
+
+@router.get("/cases/summary/{user_id}")
+async def get_case_summary(user_id: int):
+    total_cases_query = select(func.count()).select_from(generated_arguments).where(
+        generated_arguments.c.user_id == user_id
+    )
+    not_solved_query = select(func.count()).select_from(generated_arguments).where(
+        (generated_arguments.c.user_id == user_id) & (generated_arguments.c.is_solved == False)
+    )
+
+    total_cases_result = await database.fetch_val(total_cases_query)
+    not_solved_cases_result = await database.fetch_val(not_solved_query)
+
+    return {
+        "user_id": user_id,
+        "total_cases": total_cases_result,
+        "not_solved_cases": not_solved_cases_result
+    }
+
+
+
+
+@router.put("/cases/update_status")
+async def update_case_status(data: SolveStatusUpdate):
+    query = (
+        generated_arguments.update()
+        .where(generated_arguments.c.case_id == data.case_id)
+        .values(is_solved=data.is_solved)
+    )
+    result = await database.execute(query)
+
+    if result == 0:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    return {"message": "Case status updated successfully"}

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, Table, Column, Integer, String, MetaData, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Table, Column, Integer, String, MetaData, Text
 
 metadata = MetaData()
 
@@ -22,6 +22,8 @@ generated_arguments = Table(
     Column("case_id", String),
     Column("generated_arguments", Text),
     Column("created_at", DateTime, default=datetime.utcnow),
+        Column("is_solved", Boolean, default=False),  
+
 )
 
 blacklisted_tokens = Table(

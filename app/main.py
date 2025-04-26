@@ -16,3 +16,5 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Legal Argument Generator", lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(generate_router)
+
+
