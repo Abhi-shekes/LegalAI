@@ -27,11 +27,18 @@ async def signup(user: UserCreate):
 @router.post("/login", response_model=Token)
 async def login(email: str = Form(...), password: str = Form(...)):
     user = await get_user_by_email(email)
-    if not user or not verify_password(password, user["hashed_password"]):
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
-    token = create_access_token(data={"sub": user["email"]})
-    return {"access_token": token, "token_type": "bearer"}
 
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    if not verify_password(password, user["hashed_password"]):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+   
+    name = user["name"]
+    user_id = user["id"] 
+    token = create_access_token(data={"sub": user["email"]})
+    
+    return {"access_token": token, "token_type": "bearer", "name": name, "user_id": user_id}
 
 
 @router.post("/logout")

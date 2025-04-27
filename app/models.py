@@ -14,6 +14,8 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    name: str
+    user_id:int
 
 class CaseInput(BaseModel):
     case_id: str

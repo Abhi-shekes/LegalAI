@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Boolean, DateTime, ForeignKey, Table, Column, Integer, String, MetaData, Text
 
 metadata = MetaData()
@@ -21,10 +21,10 @@ generated_arguments = Table(
     Column("user_id", Integer, ForeignKey("users.id")),
     Column("case_id", String),
     Column("generated_arguments", Text),
-    Column("created_at", DateTime, default=datetime.utcnow),
-        Column("is_solved", Boolean, default=False),  
-
+    Column("created_at", DateTime, default=datetime.now(timezone.utc)),  # Use timezone-aware UTC datetime
+    Column("is_solved", Boolean, default=False),
 )
+
 
 blacklisted_tokens = Table(
     "blacklisted_tokens",

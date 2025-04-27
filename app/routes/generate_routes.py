@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Request, Depends
 import torch
 import json
@@ -57,7 +58,9 @@ async def generate_arguments(
         query = generated_arguments.insert().values(
             user_id=current_user.id,
             case_id=case.case_id,
-            generated_arguments=json.dumps(gen_json) 
+            generated_arguments=json.dumps(gen_json) ,
+            is_solved=False ,
+            created_at=datetime.now(timezone.utc)
         )
         await database.execute(query)
 
@@ -84,6 +87,34 @@ async def get_generated_arguments(case_id: str, current_user: UserOut = Depends(
 
     return {"case_id": case_id, "generated_arguments": parsed}
 
+
+
+@router.get("/user_case/{user_id}")
+async def get_user_case(user_id: int, current_user: UserOut = Depends(get_current_user)):
+    # Query to fetch case_id, created_at, and is_solved for all entries with the given user_id
+    query = select(
+        generated_arguments.c.case_id, 
+        generated_arguments.c.created_at, 
+        generated_arguments.c.is_solved
+    ).where(
+        generated_arguments.c.user_id == user_id,
+        generated_arguments.c.user_id == current_user.id  # Verify it's the same user
+    )
+    results = await database.fetch_all(query)
+    
+    if not results:
+        raise HTTPException(status_code=404, detail="No cases found for this user")
+    
+    cases = []
+    for row in results:
+        case = {
+            "case_id": row.case_id,
+            "created_at": row.created_at,
+            "is_active": not row.is_solved
+        }
+        cases.append(case)
+
+    return {"user_cases": cases}
 
 
 

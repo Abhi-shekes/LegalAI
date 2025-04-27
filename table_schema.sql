@@ -15,6 +15,7 @@ CREATE TABLE generated_arguments (
     case_id VARCHAR(255),
     generated_arguments TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_solved BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
